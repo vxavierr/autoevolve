@@ -120,4 +120,21 @@ describe('DomainRegistry', () => {
     assert.ok(!detected.includes('flow'));
     await cleanTempDir(emptyDir);
   });
+
+  it('getFrameworkName returns aiox when .aios-core exists', async () => {
+    const fwDir = await createTempDir();
+    await mkdir(join(fwDir, '.aios-core'), { recursive: true });
+    const registry = new DomainRegistry(fwDir);
+    await registry.detectDomains(); // must detect first
+    assert.equal(registry.getFrameworkName(), 'aiox');
+    await cleanTempDir(fwDir);
+  });
+
+  it('getFrameworkName returns null when no framework', async () => {
+    const emptyDir = await createTempDir();
+    const registry = new DomainRegistry(emptyDir);
+    await registry.detectDomains();
+    assert.equal(registry.getFrameworkName(), null);
+    await cleanTempDir(emptyDir);
+  });
 });
