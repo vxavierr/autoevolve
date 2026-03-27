@@ -1,47 +1,126 @@
-<!-- src/dashboard/public/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>autoevolve dashboard</title>
+  <title>autoevolve</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+  <div class="grain-overlay"></div>
+
   <header>
-    <h1>autoevolve</h1>
-    <button id="refresh-btn" title="Refresh">&#8635;</button>
-    <span id="last-updated"></span>
+    <div class="header-left">
+      <div class="logo-mark">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect x="1" y="1" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="17" y="1" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="1" y="17" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="17" y="17" width="10" height="10" rx="1" fill="currentColor"/>
+          <line x1="14" y1="6" x2="14" y2="22" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/>
+          <line x1="6" y1="14" x2="22" y2="14" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/>
+        </svg>
+      </div>
+      <div class="brand">
+        <span class="brand-name">autoevolve</span>
+        <span class="brand-tag">autonomous improvement engine</span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="status-indicator">
+        <span class="pulse-dot"></span>
+        <span id="system-status">running</span>
+      </div>
+      <span id="last-updated" class="last-updated">—</span>
+      <button id="refresh-btn" title="Refresh data">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M13 7A6 6 0 1 1 7 1c1.66 0 3.16.67 4.24 1.76L13 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <polyline points="13,1 13,4 10,4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Refresh
+      </button>
+    </div>
   </header>
 
   <main>
-    <div class="panels">
-      <section id="panel-projects" class="panel">
-        <h2>Projects</h2>
-        <div class="panel-content" id="projects-content">Loading...</div>
+    <!-- Top row: 3 columns -->
+    <div class="grid-top">
+      <section class="panel panel--projects" id="panel-projects">
+        <div class="panel-header">
+          <span class="panel-eyebrow">workspace</span>
+          <h2 class="panel-title">Projects</h2>
+          <span class="panel-badge" id="projects-count">—</span>
+        </div>
+        <div class="panel-body" id="projects-content">
+          <div class="skeleton-lines">
+            <div class="sk-line"></div><div class="sk-line sk-short"></div>
+            <div class="sk-line"></div><div class="sk-line sk-short"></div>
+          </div>
+        </div>
       </section>
 
-      <section id="panel-evolution" class="panel">
-        <h2>Evolution</h2>
-        <div class="panel-content" id="evolution-content">Loading...</div>
+      <section class="panel panel--behavior" id="panel-behavior">
+        <div class="panel-header">
+          <span class="panel-eyebrow">signal analysis</span>
+          <h2 class="panel-title">Behavior</h2>
+        </div>
+        <div class="panel-body" id="behavior-content">
+          <div class="skeleton-lines">
+            <div class="sk-line"></div><div class="sk-line sk-short"></div>
+            <div class="sk-line"></div><div class="sk-line sk-short"></div>
+          </div>
+        </div>
       </section>
 
-      <section id="panel-behavior" class="panel">
-        <h2>Behavior</h2>
-        <div class="panel-content" id="behavior-content">Loading...</div>
-      </section>
-
-      <section id="panel-predictions" class="panel">
-        <h2>Predictions</h2>
-        <div class="panel-content" id="predictions-content">Loading...</div>
+      <section class="panel panel--predictions" id="panel-predictions">
+        <div class="panel-header">
+          <span class="panel-eyebrow">risk model</span>
+          <h2 class="panel-title">Predictions</h2>
+        </div>
+        <div class="panel-body" id="predictions-content">
+          <div class="skeleton-lines">
+            <div class="sk-line"></div><div class="sk-line sk-short"></div>
+            <div class="sk-line"></div>
+          </div>
+        </div>
       </section>
     </div>
 
-    <section id="panel-runs" class="panel panel-wide">
-      <h2>Recent Runs</h2>
-      <div class="panel-content" id="runs-content">Loading...</div>
+    <!-- Evolution: full width with big metrics -->
+    <section class="panel panel--evolution" id="panel-evolution">
+      <div class="panel-header">
+        <span class="panel-eyebrow">code above llm</span>
+        <h2 class="panel-title">Evolution</h2>
+      </div>
+      <div class="panel-body" id="evolution-content">
+        <div class="skeleton-lines">
+          <div class="sk-line"></div><div class="sk-line sk-short"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Runs -->
+    <section class="panel panel--runs" id="panel-runs">
+      <div class="panel-header">
+        <span class="panel-eyebrow">execution history</span>
+        <h2 class="panel-title">Recent Runs</h2>
+      </div>
+      <div class="panel-body" id="runs-content">
+        <div class="skeleton-lines">
+          <div class="sk-line"></div><div class="sk-line"></div><div class="sk-line sk-short"></div>
+        </div>
+      </div>
     </section>
   </main>
+
+  <footer>
+    <span class="footer-copy">autoevolve &mdash; progressively replacing LLM decisions with hardcoded rules</span>
+    <span class="footer-cycle">30s cycle</span>
+  </footer>
 
   <script src="/app.js"></script>
 </body>
