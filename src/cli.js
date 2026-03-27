@@ -66,47 +66,47 @@ async function main() {
 
 function printHelp() {
   console.log(`
-autoevolve — Autonomous improvement engine
+autoevolve — motor de melhoria autonoma
 
-Usage:
-  autoevolve init                    Generate config, auto-detect domains
-  autoevolve scan                    Discover all projects in workspace
-  autoevolve run "goal"              Run improvement loop for a goal
-  autoevolve run --all "goal"        Run on all discovered projects
-  autoevolve predict                 Analyze behavior patterns
-  autoevolve predict --simulate "g"  Predict friction for a goal
-  autoevolve flow                    Audit workflow (if framework detected)
-  autoevolve status                  Show current state and metrics
-  autoevolve status --all            Aggregated status across all projects
-  autoevolve rules                   List hardcoded rules
-  autoevolve rules export            Export rules to stdout
-  autoevolve rules export --file f   Export rules to file
-  autoevolve rules export --global   Export cross-project rules only
-  autoevolve rules import <file>     Import rules from file
-  autoevolve rules import --trust <url>  Import from URL
-  autoevolve rules --cross-project   Promote and show global rules
-  autoevolve dashboard               Open web dashboard (localhost:4040)
+Uso:
+  autoevolve init                    Gera config, detecta dominios automaticamente
+  autoevolve scan                    Descobre todos os projetos no workspace
+  autoevolve run "objetivo"          Roda o loop de melhoria para um objetivo
+  autoevolve run --all "objetivo"    Roda em todos os projetos descobertos
+  autoevolve predict                 Analisa padroes de comportamento
+  autoevolve predict --simulate "o"  Prediz atrito para um objetivo
+  autoevolve flow                    Audita workflow (se framework detectado)
+  autoevolve status                  Mostra estado atual e metricas
+  autoevolve status --all            Status agregado de todos os projetos
+  autoevolve rules                   Lista regras hardcoded
+  autoevolve rules export            Exporta regras para stdout
+  autoevolve rules export --file f   Exporta regras para arquivo
+  autoevolve rules export --global   Exporta apenas regras cross-project
+  autoevolve rules import <arquivo>  Importa regras de arquivo
+  autoevolve rules import --trust <url>  Importa de URL
+  autoevolve rules --cross-project   Promove e exibe regras globais
+  autoevolve dashboard               Abre dashboard web (localhost:4040)
 
-Options:
-  --max <n>              Max iterations (default: no limit, plateau stops)
-  --domain <name>        Only run specific domain
-  --all                  Run on all discovered projects
-  --cross-project        Show/promote cross-project rules
-  --simulate "goal"      Predict friction scenarios for a goal
-  --port <n>             Dashboard port (default: 4040)
-  --file <path>          Export rules to file
-  --global               Export global rules only
-  --trust                Allow importing from remote URLs
-  --dry-run              Show what would change without executing
-  -h, --help             Show this help
+Opcoes:
+  --max <n>              Max iteracoes (padrao: sem limite, para no plateau)
+  --domain <nome>        Roda apenas o dominio especifico
+  --all                  Roda em todos os projetos descobertos
+  --cross-project        Exibe/promove regras cross-project
+  --simulate "objetivo"  Prediz cenarios de atrito para um objetivo
+  --port <n>             Porta do dashboard (padrao: 4040)
+  --file <caminho>       Exporta regras para arquivo
+  --global               Exporta apenas regras globais
+  --trust                Permite importar de URLs remotas
+  --dry-run              Mostra o que mudaria sem executar
+  -h, --help             Exibe esta ajuda
 `);
 }
 
 async function cmdInit(cwd) {
   const registry = new DomainRegistry(cwd);
   const detected = await registry.detectDomains();
-  console.log('Detected domains:', detected.join(', '));
-  console.log('Run `autoevolve run "your goal"` to start improving.');
+  console.log('Dominios detectados:', detected.join(', '));
+  console.log('Rode `autoevolve run "seu objetivo"` para comecar a melhorar.');
 }
 
 async function cmdScan(cwd) {
@@ -114,10 +114,10 @@ async function cmdScan(cwd) {
   const scanner = new ProjectScanner(cwd);
   const projects = await scanner.scanAndSave();
   if (projects.length === 0) {
-    console.log('No projects found. Try running in a workspace with projects/ subdirectory.');
+    console.log('Nenhum projeto encontrado. Tente rodar em um workspace com subdiretorio projects/.');
     return;
   }
-  console.log(`Found ${projects.length} projects:`);
+  console.log(`${projects.length} projetos encontrados:`);
   for (const p of projects) {
     const flags = [p.hasTests && 'tests', p.hasClaudeMd && 'claude', p.hasAiosCore && 'aiox'].filter(Boolean);
     console.log(`  ${p.name} [${flags.join(', ')}]`);
@@ -139,9 +139,9 @@ async function cmdStatus(cwd) {
 }
 
 async function cmdRun(cwd, goal, opts) {
-  console.log(`autoevolve: running with goal "${goal}"`);
-  console.log('Note: in standalone mode, an LLM backend is required for the ANALYZE step.');
-  console.log('Configure llm.provider in .autoevolve/config.yaml');
+  console.log(`autoevolve: rodando com objetivo "${goal}"`);
+  console.log('Nota: no modo standalone, um backend LLM e necessario para a etapa ANALYZE.');
+  console.log('Configure llm.provider em .autoevolve/config.yaml');
   // Full implementation requires LLM integration — primary usage is as Claude Code skill
 }
 
@@ -150,19 +150,19 @@ async function cmdPredict(cwd) {
     const { PredictionEngine } = await import('./prediction/engine.js');
     const engine = new PredictionEngine(cwd);
     const result = await engine.predictAndSave(values.simulate);
-    console.log(`\nGoal: ${result.goal}`);
-    console.log(`Risk score: ${result.risk_score}`);
-    console.log(`Scenarios: ${result.scenarios.length}\n`);
+    console.log(`\nObjetivo: ${result.goal}`);
+    console.log(`Risco: ${result.risk_score}`);
+    console.log(`Cenarios: ${result.scenarios.length}\n`);
     for (const s of result.scenarios) {
       const icon = s.severity === 'critical' ? '🔴' : s.severity === 'high' ? '🟠' : '🟡';
       console.log(`  ${icon} [${s.probability}] ${s.description}`);
-      console.log(`     Prevention: ${s.prevention}`);
+      console.log(`     Prevencao: ${s.prevention}`);
       if (s.based_on?.length > 0) {
-        console.log(`     Evidence: ${s.based_on.join(', ')}`);
+        console.log(`     Evidencia: ${s.based_on.join(', ')}`);
       }
     }
     if (result.recommended_guardrails.length > 0) {
-      console.log(`\nRecommended guardrails: ${result.recommended_guardrails.length}`);
+      console.log(`\nGuardrails recomendados: ${result.recommended_guardrails.length}`);
       for (const g of result.recommended_guardrails) {
         console.log(`  → ${g.description} (${g.event}:${g.matcher})`);
       }
@@ -174,18 +174,18 @@ async function cmdPredict(cwd) {
   const domain = new BehaviorDomain({});
   const homedir = (await import('node:os')).homedir();
   const sessionDir = resolve(homedir, '.claude', 'projects');
-  console.log('Behavior analysis requires session data from Claude Code.');
-  console.log(`Looking in: ${sessionDir}`);
+  console.log('Analise de comportamento requer dados de sessao do Claude Code.');
+  console.log(`Procurando em: ${sessionDir}`);
 }
 
 async function cmdFlow(cwd) {
   const registry = new DomainRegistry(cwd);
   const detected = await registry.detectDomains();
   if (!detected.includes('flow')) {
-    console.log('No framework detected. Flow domain is inactive.');
+    console.log('Nenhum framework detectado. Dominio flow esta inativo.');
     return;
   }
-  console.log('Flow domain detected. Running audit...');
+  console.log('Dominio flow detectado. Rodando auditoria...');
 }
 
 async function cmdRules(cwd, subcommand) {
@@ -196,16 +196,16 @@ async function cmdRules(cwd, subcommand) {
     const promoter = new RulePromoter(cwd);
     const promoted = await promoter.promote();
     if (promoted.length > 0) {
-      console.log(`Promoted ${promoted.length} new global rules.`);
+      console.log(`${promoted.length} novas regras globais promovidas.`);
     }
     try {
       const global = JSON.parse(await readFile(join(cwd, '.autoevolve', 'global-rules.json'), 'utf8'));
-      console.log(`${global.length} global rules:`);
+      console.log(`${global.length} regras globais:`);
       for (const r of global) {
-        console.log(`  ${r.id} [${r.domain}] ${r.do} (from: ${r.found_in.join(', ')})`);
+        console.log(`  ${r.id} [${r.domain}] ${r.do} (de: ${r.found_in.join(', ')})`);
       }
     } catch {
-      console.log('No global rules yet. Rules are promoted when the same pattern appears in 2+ projects.');
+      console.log('Nenhuma regra global ainda. Regras sao promovidas quando o mesmo padrao aparece em 2+ projetos.');
     }
     return;
   }
@@ -219,7 +219,7 @@ async function cmdRules(cwd, subcommand) {
     const pkg = values.global ? await exporter.exportGlobal() : await exporter.exportLocal();
     if (values.file) {
       await exporter.exportToFile(values.file, values.global);
-      console.log(`Exported ${pkg.rules.length} rules to ${values.file}`);
+      console.log(`${pkg.rules.length} regras exportadas para ${values.file}`);
     } else {
       console.log(JSON.stringify(pkg, null, 2));
     }
@@ -228,16 +228,16 @@ async function cmdRules(cwd, subcommand) {
 
   if (subcommand === 'import') {
     const source = positionals[2];
-    if (!source) { console.log('Usage: autoevolve rules import <file|url>'); return; }
+    if (!source) { console.log('Uso: autoevolve rules import <arquivo|url>'); return; }
     const { RuleImporter } = await import('./marketplace/importer.js');
     const importer = new RuleImporter(cwd);
     const isUrl = source.startsWith('http');
     if (isUrl && !values.trust) {
-      console.log('Remote import requires --trust flag: autoevolve rules import --trust <url>');
+      console.log('Importacao remota requer a flag --trust: autoevolve rules import --trust <url>');
       return;
     }
     const result = isUrl ? await importer.importFromUrl(source) : await importer.importFromFile(source);
-    console.log(`Imported: ${result.imported}, Rejected: ${result.rejected}${result.truncated ? ' (truncated to 50)' : ''}`);
+    console.log(`Importadas: ${result.imported}, Rejeitadas: ${result.rejected}${result.truncated ? ' (truncado em 50)' : ''}`);
     if (result.errors?.length) {
       for (const e of result.errors) console.log(`  x ${e}`);
     }
@@ -245,11 +245,11 @@ async function cmdRules(cwd, subcommand) {
   }
 
   if (rules.length === 0) {
-    console.log('No hardcoded rules yet. Rules are extracted after repeated successful patterns.');
+    console.log('Nenhuma regra hardcoded ainda. Regras sao extraidas apos padroes bem-sucedidos repetidos.');
     return;
   }
 
-  console.log(`${rules.length} hardcoded rules:\n`);
+  console.log(`${rules.length} regras hardcoded:\n`);
   for (const rule of rules) {
     console.log(`  ${rule.id} [${rule.domain}] ${rule.when} → ${rule.do} (used ${rule.verified_count}x)`);
   }
@@ -260,12 +260,12 @@ async function cmdDashboard(cwd) {
   const port = parseInt(values.port, 10) || 4040;
   const server = createDashboardServer(cwd);
   server.listen(port, '127.0.0.1', () => {
-    console.log(`autoevolve dashboard running at http://127.0.0.1:${port}`);
-    console.log('Press Ctrl+C to stop.');
+    console.log(`autoevolve dashboard rodando em http://127.0.0.1:${port}`);
+    console.log('Pressione Ctrl+C para parar.');
   });
 }
 
 main().catch(err => {
-  console.error('autoevolve error:', err.message);
+  console.error('autoevolve erro:', err.message);
   process.exit(1);
 });

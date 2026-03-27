@@ -14,10 +14,10 @@
   }
 
   function trendArrow(trend) {
-    if (trend === 'improving') return '<span class="trend-improving">&#9650; improving</span>';
-    if (trend === 'worsening') return '<span class="trend-worsening">&#9660; worsening</span>';
-    if (trend === 'stable')    return '<span class="trend-stable">&#8212; stable</span>';
-    return '<span class="trend-stable">? unknown</span>';
+    if (trend === 'improving') return '<span class="trend-improving">&#9650; melhorando</span>';
+    if (trend === 'worsening') return '<span class="trend-worsening">&#9660; piorando</span>';
+    if (trend === 'stable')    return '<span class="trend-stable">&#8212; estavel</span>';
+    return '<span class="trend-stable">? desconhecido</span>';
   }
 
   function severityIcon(sev) {
@@ -57,7 +57,7 @@
     const badge = $('#projects-count');
 
     if (!data?.projects?.length) {
-      el.innerHTML = '<p class="empty-state">No projects discovered. Run autoevolve scan.</p>';
+      el.innerHTML = '<p class="empty-state">Nenhum projeto descoberto. Rode autoevolve scan.</p>';
       return;
     }
 
@@ -96,36 +96,36 @@
     el.innerHTML = `
       <div class="evolution-metrics">
         <div class="evo-metric">
-          <div class="evo-metric-label">Local rules</div>
+          <div class="evo-metric-label">Regras locais</div>
           <div class="evo-metric-value evo-metric-value--accent" id="evo-local">0</div>
-          <div class="evo-metric-sub">project-scoped</div>
+          <div class="evo-metric-sub">escopo do projeto</div>
         </div>
         <div class="evo-metric">
-          <div class="evo-metric-label">Global rules</div>
+          <div class="evo-metric-label">Regras globais</div>
           <div class="evo-metric-value" id="evo-global">0</div>
-          <div class="evo-metric-sub">workspace-wide</div>
+          <div class="evo-metric-sub">todo o workspace</div>
         </div>
         <div class="evo-metric">
-          <div class="evo-metric-label">Code ratio</div>
+          <div class="evo-metric-label">Razao codigo</div>
           <div class="evo-metric-value evo-metric-value--accent" id="evo-ratio">0%</div>
           <div class="code-ratio-bar">
             <div class="code-ratio-fill" id="ratio-fill" style="width:0%"></div>
           </div>
         </div>
         <div class="evo-metric">
-          <div class="evo-metric-label">Iterations</div>
+          <div class="evo-metric-label">Iteracoes</div>
           <div class="evo-metric-value" id="evo-total">0</div>
           <div class="evo-metric-sub"><span id="evo-hardcoded">0</span> hardcoded</div>
         </div>
         <div class="evo-metric">
-          <div class="evo-metric-label">Cost saved</div>
+          <div class="evo-metric-label">Custo economizado</div>
           <div class="evo-metric-value evo-metric-value--savings" id="evo-savings">$0</div>
-          <div class="evo-metric-sub">by hardcoded rules</div>
+          <div class="evo-metric-sub">por regras hardcoded</div>
         </div>
         <div class="evo-metric">
-          <div class="evo-metric-label">Total cost</div>
+          <div class="evo-metric-label">Custo total</div>
           <div class="evo-metric-value evo-metric-value--cost" id="evo-cost">$0</div>
-          <div class="evo-metric-sub">LLM spend</div>
+          <div class="evo-metric-sub">gasto com LLM</div>
         </div>
       </div>`;
 
@@ -158,7 +158,7 @@
     const el = $('#behavior-content');
 
     if (!data?.total_sessions_processed) {
-      el.innerHTML = '<p class="empty-state">No behavior data yet. Run /autoevolve predict.</p>';
+      el.innerHTML = '<p class="empty-state">Sem dados de comportamento ainda. Rode /autoevolve predict.</p>';
       return;
     }
 
@@ -185,33 +185,33 @@
       <div class="behavior-grid">
         <div class="beh-metric">
           <div class="beh-metric-value" id="beh-sessions">${data.total_sessions_processed.toLocaleString()}</div>
-          <div class="beh-metric-label">sessions</div>
+          <div class="beh-metric-label">sessoes</div>
         </div>
         <div class="beh-metric">
           <div class="beh-metric-value" id="beh-msgs">${msgs.toLocaleString()}</div>
-          <div class="beh-metric-label">messages</div>
+          <div class="beh-metric-label">mensagens</div>
         </div>
         <div class="beh-metric">
           <div class="beh-metric-value" id="beh-corr">${corrCount}</div>
-          <div class="beh-metric-label">corrections</div>
-          <div class="beh-metric-pct">${corrPct}% of msgs</div>
+          <div class="beh-metric-label">correcoes</div>
+          <div class="beh-metric-pct">${corrPct}% das msgs</div>
         </div>
         <div class="beh-metric">
           <div class="beh-metric-value" id="beh-appr">${apprCount}</div>
-          <div class="beh-metric-label">approvals</div>
+          <div class="beh-metric-label">aprovacoes</div>
         </div>
       </div>
       <div class="beh-trends">
         <div class="beh-trend-row">
-          <span class="beh-trend-label">Correction trend</span>
+          <span class="beh-trend-label">Tendencia de correcao</span>
           ${trendArrow(corrTrend)}
         </div>
         <div class="beh-trend-row">
-          <span class="beh-trend-label">Frustration trend</span>
+          <span class="beh-trend-label">Tendencia de frustracao</span>
           ${trendArrow(frustTrend)}
         </div>
         <div class="beh-trend-row">
-          <span class="beh-trend-label">Frustrations</span>
+          <span class="beh-trend-label">Frustracoes</span>
           <span class="stat-value">${frustCount} <span class="beh-metric-pct">(${frustPct}%)</span></span>
         </div>
       </div>`;
@@ -224,7 +224,7 @@
     const el = $('#predictions-content');
 
     if (!data?.length) {
-      el.innerHTML = '<p class="empty-state">No predictions yet. Run /autoevolve predict --simulate "goal".</p>';
+      el.innerHTML = '<p class="empty-state">Sem predicoes ainda. Rode /autoevolve predict --simulate "objetivo".</p>';
       return;
     }
 
@@ -248,14 +248,14 @@
              <line x1="5.5" y1="4" x2="5.5" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
              <circle cx="5.5" cy="8.5" r="0.6" fill="currentColor"/>
            </svg>
-           ${latest.recommended_guardrails.length} guardrail${latest.recommended_guardrails.length > 1 ? 's' : ''} pending
+           ${latest.recommended_guardrails.length} guardrail${latest.recommended_guardrails.length > 1 ? 's' : ''} pendente${latest.recommended_guardrails.length > 1 ? 's' : ''}
          </div>`
       : '';
 
     el.innerHTML = `
       <div class="predictions-content">
         <div>
-          <div class="risk-label">risk score &mdash; ${riskLabel}</div>
+          <div class="risk-label">nivel de risco &mdash; ${riskLabel}</div>
           <div class="risk-score-wrap">
             <span class="risk-score-big ${rc}" id="pred-score">0%</span>
           </div>
@@ -264,7 +264,7 @@
           </div>
         </div>
         <div class="stat">
-          <span class="stat-label">goal</span>
+          <span class="stat-label">objetivo</span>
           <span class="stat-value" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${latest.goal}</span>
         </div>
         <div class="scenarios-list">${scenariosHtml}</div>
@@ -289,12 +289,12 @@
     const el = $('#runs-content');
 
     if (!data?.length) {
-      el.innerHTML = '<div style="padding:16px 20px"><p class="empty-state">No runs yet.</p></div>';
+      el.innerHTML = '<div style="padding:16px 20px"><p class="empty-state">Sem execucoes ainda.</p></div>';
       return;
     }
 
     const rows = data.slice(0, 15).map(r => {
-      const date   = r.timestamp ? new Date(r.timestamp).toLocaleString('en-US', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
+      const date   = r.timestamp ? new Date(r.timestamp).toLocaleString('pt-BR', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
       const result = r.kept != null ? `+${r.kept} kept, ${r.reverted ?? 0} rev` : '—';
       const cost   = r.cost_usd ? `$${r.cost_usd.toFixed(3)}` : '—';
       const goal   = (r.goal ?? '').slice(0, 55);
@@ -313,11 +313,11 @@
       <table class="runs-table">
         <thead>
           <tr>
-            <th>date</th>
-            <th>domain</th>
-            <th>result</th>
-            <th>goal</th>
-            <th>cost</th>
+            <th>data</th>
+            <th>dominio</th>
+            <th>resultado</th>
+            <th>objetivo</th>
+            <th>custo</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
@@ -338,8 +338,8 @@
       renderRuns()
     ]);
 
-    const ts = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    $('#last-updated').textContent = `sync ${ts}`;
+    const ts = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    $('#last-updated').textContent = `atualizado ${ts}`;
 
     if (btn) btn.classList.remove('spinning');
   }
