@@ -53,20 +53,34 @@ export class DomainRegistry {
 
   async #hasFramework() {
     const frameworks = [
-      { dir: '.aios-core', name: 'aiox' },
+      { dir: '.aios-core', name: 'aiox', adapter: '.aios-core/autoevolve/flow.js' },
       // future: other frameworks can be added here
     ];
     for (const fw of frameworks) {
       try {
         await access(join(this.#cwd, fw.dir));
+        this.#detectedFramework = fw;
         return true;
       } catch { continue; }
     }
     return false;
   }
 
+  #detectedFramework = null;
+
   getFrameworkName() {
-    // called after detection to know which adapter to load
+    return this.#detectedFramework?.name ?? null;
+  }
+
+  async loadFlowAdapter() {
+    if (!this.#detectedFramework?.adapter) return null;
+    const adapterPath = join(this.#cwd, this.#detectedFramework.adapter);
+    try {
+      await access(adapterPath);
+      const mod = await import(`file://${adapterPath.replace(/\\/g, '/')}`);
+      const AdapterClass = mod.AIOXFlowAdapter ?? mod.default;
+      if (AdapterClass) return new AdapterClass(this.#cwd);
+    } catch { /* adapter not installed, flow uses base interface */ }
     return null;
   }
 }
