@@ -48,6 +48,26 @@ The user invokes you as:
 - `/autoevolve status --all` → aggregated status across all projects
 - `/autoevolve run --all "goal"` → run tight loop on each project sequentially
 - `/autoevolve rules --cross-project` → promote and show global rules
+- `/autoevolve predict --simulate "goal"` → predict friction scenarios before starting
+
+### Prediction (`/autoevolve predict --simulate "goal"`)
+
+1. Load behavior model from `.autoevolve/behavior/model.json`
+2. Match goal keywords to scenario templates (deterministic, Code above LLM)
+3. Generate scenarios with probability adjusted by historical correction patterns
+4. Compute risk score (average probability across scenarios)
+5. Show scenarios sorted by probability, with severity icons
+6. Recommend guardrails for high-risk scenarios (propose hooks if pattern warrants)
+7. If no templates match and you're running as a skill, generate scenarios using your own reasoning based on the goal + behavior model
+
+### Hook auto-generation
+
+When prediction or behavior analysis detects a preventable pattern:
+1. Generate hook script from template to `.autoevolve/hooks/`
+2. Propose installation in `.autoevolve/behavior/guardrails-proposed.json`
+3. On next `/autoevolve predict`, show pending proposals to user
+4. **NEVER auto-install.** Always wait for explicit user approval.
+5. If approved, append to `.claude/settings.local.json` (never overwrite existing hooks)
 
 ### Domain: code
 

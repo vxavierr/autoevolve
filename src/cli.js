@@ -14,6 +14,7 @@ const { values, positionals } = parseArgs({
     'dry-run': { type: 'boolean', default: false },
     all: { type: 'boolean', default: false },
     'cross-project': { type: 'boolean', default: false },
+    simulate: { type: 'string' },
     help: { type: 'boolean', short: 'h', default: false },
   },
 });
@@ -66,6 +67,7 @@ Usage:
   autoevolve run "goal"              Run improvement loop for a goal
   autoevolve run --all "goal"        Run on all discovered projects
   autoevolve predict                 Analyze behavior patterns
+  autoevolve predict --simulate "g"  Predict friction for a goal
   autoevolve flow                    Audit workflow (if framework detected)
   autoevolve status                  Show current state and metrics
   autoevolve status --all            Aggregated status across all projects
@@ -78,6 +80,7 @@ Options:
   --domain <name>        Only run specific domain
   --all                  Run on all discovered projects
   --cross-project        Show/promote cross-project rules
+  --simulate "goal"      Predict friction scenarios for a goal
   --dry-run              Show what would change without executing
   -h, --help             Show this help
 `);
@@ -127,10 +130,33 @@ async function cmdRun(cwd, goal, opts) {
 }
 
 async function cmdPredict(cwd) {
+  if (values.simulate) {
+    const { PredictionEngine } = await import('./prediction/engine.js');
+    const engine = new PredictionEngine(cwd);
+    const result = await engine.predictAndSave(values.simulate);
+    console.log(`\nGoal: ${result.goal}`);
+    console.log(`Risk score: ${result.risk_score}`);
+    console.log(`Scenarios: ${result.scenarios.length}\n`);
+    for (const s of result.scenarios) {
+      const icon = s.severity === 'critical' ? '🔴' : s.severity === 'high' ? '🟠' : '🟡';
+      console.log(`  ${icon} [${s.probability}] ${s.description}`);
+      console.log(`     Prevention: ${s.prevention}`);
+      if (s.based_on?.length > 0) {
+        console.log(`     Evidence: ${s.based_on.join(', ')}`);
+      }
+    }
+    if (result.recommended_guardrails.length > 0) {
+      console.log(`\nRecommended guardrails: ${result.recommended_guardrails.length}`);
+      for (const g of result.recommended_guardrails) {
+        console.log(`  → ${g.description} (${g.event}:${g.matcher})`);
+      }
+    }
+    return;
+  }
+
   const { BehaviorDomain } = await import('./domains/behavior/index.js');
   const domain = new BehaviorDomain({});
   const homedir = (await import('node:os')).homedir();
-  // Auto-detect session dir
   const sessionDir = resolve(homedir, '.claude', 'projects');
   console.log('Behavior analysis requires session data from Claude Code.');
   console.log(`Looking in: ${sessionDir}`);
