@@ -45,6 +45,20 @@ describe('RuleStore', () => {
     const matches = await store.findMatches('prompts', 'eslint fixable > 0');
     assert.equal(matches.length, 0);
   });
+
+  it('markUsed updates last_used and verified_count', async () => {
+    const rules = await store.loadAll();
+    const ruleId = rules[0].id;
+    assert.equal(rules[0].last_used, null);
+    const oldCount = rules[0].verified_count;
+
+    await store.markUsed(ruleId);
+
+    const updated = await store.loadAll();
+    const rule = updated.find(r => r.id === ruleId);
+    assert.ok(rule.last_used !== null);
+    assert.equal(rule.verified_count, oldCount + 1);
+  });
 });
 
 describe('PatternExtractor', () => {
