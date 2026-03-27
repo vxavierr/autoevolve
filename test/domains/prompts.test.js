@@ -40,3 +40,23 @@ describe('PromptsDomain', () => {
     assert.equal(domain.name, 'prompts');
   });
 });
+
+describe('measureTotalTokens', () => {
+  it('counts tokens across .md files in a directory', async () => {
+    const { measureTotalTokens } = await import('../../src/domains/prompts/verifiers.js');
+    const { createTempDir, cleanTempDir } = await import('../helpers/fixtures.js');
+    const { mkdir, writeFile } = await import('node:fs/promises');
+    const { join } = await import('node:path');
+
+    const dir = await createTempDir();
+    await mkdir(join(dir, '.claude'), { recursive: true });
+    await writeFile(join(dir, '.claude', 'CLAUDE.md'), 'This is a test file with some content for counting tokens');
+    await writeFile(join(dir, '.claude', 'rules.md'), 'Another file with rules and instructions');
+
+    const total = await measureTotalTokens(dir, '.claude/**/*.md');
+    assert.ok(total > 0);
+    assert.ok(total < 100); // two small files
+
+    await cleanTempDir(dir);
+  });
+});
