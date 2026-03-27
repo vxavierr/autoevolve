@@ -28,9 +28,24 @@ const APPROVAL_SIGNALS = [
   /\bok\b/i,
   /\bship it\b/i,
   /\bnext\b/i,
-  /\bbora\b/i,    // pt-br
-  /\bbeleza\b/i,  // pt-br
-  /\bshow\b/i,    // pt-br slang for "great"
+  /\bbora\b/i,       // pt-br
+  /\bbeleza\b/i,     // pt-br
+  /\bshow\b/i,       // pt-br slang for "great"
+  /\bsim\b/i,        // pt-br "yes"
+  /\bpode\b/i,       // pt-br "go ahead"
+  /\bsegue\b/i,      // pt-br "continue"
+  /\bcontinue\b/i,
+  /\bopção\b/i,      // pt-br "option" (choosing)
+  /\bperfeito\b/i,   // pt-br "perfect"
+  /\bpor favor\b/i,  // pt-br polite approval
+];
+
+// Commands/directives — not frustration, just terse instructions
+const COMMAND_SIGNALS = [
+  /^@\w+/,           // @dev, @devops, @qa
+  /^\*\w+/,          // *push, *status
+  /^clear$/i,
+  /^eai$/i,          // pt-br "hey" (session start)
 ];
 
 export class BehaviorAnalyzer {
@@ -77,7 +92,8 @@ export class BehaviorAnalyzer {
       if (prev.content.length > 300 && curr.content.length < 20) {
         const isApproval = APPROVAL_SIGNALS.some(r => r.test(curr.content));
         const isChoice = /^\d+$/.test(curr.content.trim()); // "1", "2", "3" = choosing option
-        if (!isApproval && !isChoice) {
+        const isCommand = COMMAND_SIGNALS.some(r => r.test(curr.content.trim()));
+        if (!isApproval && !isChoice && !isCommand) {
           patterns.push({
             type: 'frustration',
             userMessage: curr.content,
