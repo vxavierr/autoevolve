@@ -15,8 +15,8 @@
   --border-bright: #2a3f2a;
 
   --text:          #d4e8d4;
-  --text-dim:      #607860;
-  --text-muted:    #3a4e3a;
+  --text-dim:      #7a9a7a;
+  --text-muted:    #4a6a4a;
 
   --accent:        #a8ff3e;
   --accent-dim:    #6aad1e;
@@ -33,6 +33,7 @@
   --blue-dim:      rgba(91, 159, 255, 0.12);
 
   --font-display:  'Syne', sans-serif;
+  --font-body:     'Syne', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono:     'DM Mono', monospace;
 
   --radius:        4px;
@@ -46,7 +47,7 @@
 html { font-size: 14px; }
 
 body {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   background-color: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -271,11 +272,12 @@ main {
 }
 
 .panel-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-dim);
   flex: 1;
 }
 
@@ -300,8 +302,8 @@ main {
 /* Panel body */
 .panel-body {
   padding: 14px 16px 16px 20px;
-  font-size: 0.8rem;
-  line-height: 1.6;
+  font-size: 0.85rem;
+  line-height: 1.7;
 }
 
 /* ─── Skeleton Loaders ───────────────────────────────────── */
@@ -334,14 +336,16 @@ main {
 
 .stat-label {
   color: var(--text-dim);
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  letter-spacing: 0.01em;
 }
 
 .stat-value {
+  font-family: var(--font-mono);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: var(--text);
 }
 
@@ -475,7 +479,8 @@ main {
 .project-item:last-child { border-bottom: none; }
 
 .project-name {
-  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
   color: var(--text);
   font-weight: 400;
   white-space: nowrap;
@@ -490,11 +495,12 @@ main {
 }
 
 .flag-chip {
-  font-size: 0.58rem;
-  padding: 1px 5px;
-  border-radius: 2px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
   border: 1px solid;
 }
 .flag-tests  { color: var(--accent-dim); border-color: rgba(106,173,30,0.3); background: rgba(106,173,30,0.06); }
@@ -613,12 +619,14 @@ main {
 
 .scenario-row {
   display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 0.72rem;
-  color: var(--text-dim);
-  padding: 4px 0;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--text);
+  padding: 6px 0;
   border-bottom: 1px solid var(--border);
+  line-height: 1.4;
 }
 .scenario-row:last-child { border-bottom: none; }
 
@@ -653,15 +661,15 @@ main {
 }
 
 .runs-table thead th {
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-dim);
   text-align: left;
   padding: 10px 16px 8px 20px;
   border-bottom: 1px solid var(--border);
-  font-weight: 400;
 }
 
 .runs-table tbody tr {
@@ -673,10 +681,17 @@ main {
 
 .runs-table tbody td {
   padding: 8px 16px 8px 20px;
+  font-size: 0.8rem;
+  color: var(--text);
+  vertical-align: middle;
+  font-family: var(--font-body);
+}
+
+.runs-table tbody td:first-child,
+.runs-table tbody td:last-child {
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--text-dim);
-  vertical-align: middle;
-  font-family: var(--font-mono);
 }
 
 .run-domain {
