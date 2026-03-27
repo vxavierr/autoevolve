@@ -39,6 +39,41 @@ loop:
     assert.equal(config.domains.code.enabled, true);
     assert.equal(config.loop.max_iterations, 5);
   });
+
+  it('deep merges nested config without losing defaults', async () => {
+    const dir2 = await createTempDir();
+    await mkdir(join(dir2, '.autoevolve'), { recursive: true });
+    await writeFile(join(dir2, '.autoevolve', 'config.yaml'), `
+domains:
+  code:
+    verify_command: "vitest run"
+evolution:
+  extract_after_repeats: 5
+`);
+    const config = await loadConfig(dir2);
+    // User override applied
+    assert.equal(config.domains.code.verify_command, 'vitest run');
+    assert.equal(config.evolution.extract_after_repeats, 5);
+    // Defaults preserved
+    assert.ok(config.domains.prompts);
+    assert.ok(config.domains.behavior);
+    assert.equal(config.loop.plateau_threshold, 3);
+    assert.equal(config.evolution.require_verified_count, 3);
+    await cleanTempDir(dir2);
+  });
+
+  it('user config overrides array values completely', async () => {
+    const dir3 = await createTempDir();
+    await mkdir(join(dir3, '.autoevolve'), { recursive: true });
+    await writeFile(join(dir3, '.autoevolve', 'config.yaml'), `
+domains:
+  code:
+    metrics: [bundle-size]
+`);
+    const config = await loadConfig(dir3);
+    assert.deepEqual(config.domains.code.metrics, ['bundle-size']);
+    await cleanTempDir(dir3);
+  });
 });
 
 describe('DomainRegistry', () => {
