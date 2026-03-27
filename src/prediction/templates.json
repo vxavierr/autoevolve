@@ -1,0 +1,105 @@
+{
+  "version": "1.0.0",
+  "scenarios": {
+    "credential-mismatch": {
+      "description": "Claude uses credentials or account data from the wrong project or environment",
+      "default_probability": 0.7,
+      "severity": "high",
+      "prevention": "Confirm which project and account context before accessing any credentials or external service data",
+      "guardrail": {
+        "event": "PreToolUse",
+        "matcher": "Bash|Read",
+        "hook_template": "verify-data-source",
+        "description": "Verify data source context before credential access"
+      }
+    },
+    "wrong-account": {
+      "description": "Claude opens or queries the wrong account/profile in an external service",
+      "default_probability": 0.5,
+      "severity": "medium",
+      "prevention": "Explicitly state which account ID or profile to use before any external service interaction",
+      "guardrail": {
+        "event": "PreToolUse",
+        "matcher": "Bash",
+        "hook_template": "verify-data-source",
+        "description": "Verify account context before external service access"
+      }
+    },
+    "data-loss-risk": {
+      "description": "A database operation (DELETE, DROP, migration) could destroy data without backup",
+      "default_probability": 0.4,
+      "severity": "critical",
+      "prevention": "Create a backup or snapshot before any destructive database operation",
+      "guardrail": {
+        "event": "PreToolUse",
+        "matcher": "Bash",
+        "hook_template": "confirm-scope",
+        "description": "Confirm destructive database operation scope"
+      }
+    },
+    "missing-backup": {
+      "description": "Migration proceeds without verifying backup exists",
+      "default_probability": 0.3,
+      "severity": "high",
+      "prevention": "Verify backup exists and is recent before running migration",
+      "guardrail": null
+    },
+    "untested-code": {
+      "description": "Code is deployed or pushed without running tests first",
+      "default_probability": 0.5,
+      "severity": "high",
+      "prevention": "Run full test suite before any push or deploy operation",
+      "guardrail": {
+        "event": "PreToolUse",
+        "matcher": "Bash",
+        "hook_template": "check-branch",
+        "description": "Verify tests pass before push"
+      }
+    },
+    "broken-ci": {
+      "description": "Push breaks CI pipeline due to untested dependency or config change",
+      "default_probability": 0.3,
+      "severity": "medium",
+      "prevention": "Check CI config and dependency changes before pushing",
+      "guardrail": null
+    },
+    "scope-creep": {
+      "description": "Refactoring expands beyond original scope, touching unrelated files",
+      "default_probability": 0.6,
+      "severity": "medium",
+      "prevention": "Define exact file list before starting. Flag any file not in the original scope.",
+      "guardrail": null
+    },
+    "breaking-imports": {
+      "description": "Renaming or moving files breaks import paths in dependent modules",
+      "default_probability": 0.5,
+      "severity": "high",
+      "prevention": "Search for all import references before renaming. Update all references atomically.",
+      "guardrail": null
+    },
+    "missing-edge-cases": {
+      "description": "Tests cover happy path but miss error handling and boundary conditions",
+      "default_probability": 0.4,
+      "severity": "medium",
+      "prevention": "For each test, add at least one error case and one boundary case",
+      "guardrail": null
+    },
+    "flaky-tests": {
+      "description": "New tests pass locally but fail intermittently due to timing or state leakage",
+      "default_probability": 0.3,
+      "severity": "low",
+      "prevention": "Isolate test state. Avoid shared mutable state between tests. Use temp directories.",
+      "guardrail": null
+    }
+  },
+  "goal_patterns": {
+    "auth|credentials|login|senha|oauth": ["credential-mismatch", "wrong-account"],
+    "database|migration|schema|supabase|rls": ["data-loss-risk", "missing-backup"],
+    "deploy|push|release|publish": ["untested-code", "broken-ci"],
+    "refactor|rename|move|reorganize": ["scope-creep", "breaking-imports"],
+    "test|coverage|jest|vitest|spec": ["missing-edge-cases", "flaky-tests"],
+    "api|endpoint|route|fetch": ["credential-mismatch", "untested-code"],
+    "style|css|tailwind|ui|component": ["scope-creep", "missing-edge-cases"],
+    "config|env|secret|key": ["credential-mismatch", "data-loss-risk"]
+  }
+}
