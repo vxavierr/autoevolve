@@ -2,104 +2,104 @@
   "version": "1.0.0",
   "scenarios": {
     "credential-mismatch": {
-      "description": "Claude uses credentials or account data from the wrong project or environment",
+      "description": "Claude pode usar credenciais ou dados do projeto errado",
       "default_probability": 0.7,
       "severity": "high",
-      "prevention": "Confirm which project and account context before accessing any credentials or external service data",
+      "prevention": "Confirmar qual projeto e conta antes de acessar credenciais ou dados externos",
       "guardrail": {
         "event": "PreToolUse",
         "matcher": "Bash|Read",
         "hook_template": "verify-data-source",
-        "description": "Verify data source context before credential access"
+        "description": "Verificar contexto antes de acessar credenciais"
       }
     },
     "wrong-account": {
-      "description": "Claude opens or queries the wrong account/profile in an external service",
+      "description": "Claude pode abrir ou consultar a conta/perfil errado num servico externo",
       "default_probability": 0.5,
       "severity": "medium",
-      "prevention": "Explicitly state which account ID or profile to use before any external service interaction",
+      "prevention": "Dizer explicitamente qual conta ou perfil usar antes de qualquer acesso externo",
       "guardrail": {
         "event": "PreToolUse",
         "matcher": "Bash",
         "hook_template": "verify-data-source",
-        "description": "Verify account context before external service access"
+        "description": "Verificar conta antes de acessar servico externo"
       }
     },
     "data-loss-risk": {
-      "description": "A database operation (DELETE, DROP, migration) could destroy data without backup",
+      "description": "Uma operacao no banco (DELETE, DROP, migration) pode destruir dados sem backup",
       "default_probability": 0.4,
       "severity": "critical",
-      "prevention": "Create a backup or snapshot before any destructive database operation",
+      "prevention": "Criar backup ou snapshot antes de qualquer operacao destrutiva no banco",
       "guardrail": {
         "event": "PreToolUse",
         "matcher": "Bash",
         "hook_template": "confirm-scope",
-        "description": "Confirm destructive database operation scope"
+        "description": "Confirmar escopo de operacao destrutiva no banco"
       }
     },
     "missing-backup": {
-      "description": "Migration proceeds without verifying backup exists",
+      "description": "Migration roda sem verificar se o backup existe",
       "default_probability": 0.3,
       "severity": "high",
-      "prevention": "Verify backup exists and is recent before running migration",
+      "prevention": "Verificar se o backup existe e e recente antes de rodar migration",
       "guardrail": null
     },
     "untested-code": {
-      "description": "Code is deployed or pushed without running tests first",
+      "description": "Codigo e publicado ou enviado sem rodar os testes antes",
       "default_probability": 0.5,
       "severity": "high",
-      "prevention": "Run full test suite before any push or deploy operation",
+      "prevention": "Rodar todos os testes antes de qualquer push ou deploy",
       "guardrail": {
         "event": "PreToolUse",
         "matcher": "Bash",
         "hook_template": "check-branch",
-        "description": "Verify tests pass before push"
+        "description": "Verificar se os testes passam antes do push"
       }
     },
     "broken-ci": {
-      "description": "Push breaks CI pipeline due to untested dependency or config change",
+      "description": "Push quebra o CI por causa de dependencia ou config nao testada",
       "default_probability": 0.3,
       "severity": "medium",
-      "prevention": "Check CI config and dependency changes before pushing",
+      "prevention": "Checar config do CI e mudancas de dependencias antes de pushar",
       "guardrail": null
     },
     "scope-creep": {
-      "description": "Refactoring expands beyond original scope, touching unrelated files",
+      "description": "Refatoracao se expande alem do escopo original, mexendo em arquivos nao relacionados",
       "default_probability": 0.6,
       "severity": "medium",
-      "prevention": "Define exact file list before starting. Flag any file not in the original scope.",
+      "prevention": "Definir lista exata de arquivos antes de comecar. Sinalizar qualquer arquivo fora do escopo.",
       "guardrail": null
     },
     "breaking-imports": {
-      "description": "Renaming or moving files breaks import paths in dependent modules",
+      "description": "Renomear ou mover arquivos quebra os imports em outros modulos",
       "default_probability": 0.5,
       "severity": "high",
-      "prevention": "Search for all import references before renaming. Update all references atomically.",
+      "prevention": "Buscar todas as referencias de import antes de renomear. Atualizar tudo de uma vez.",
       "guardrail": null
     },
     "missing-edge-cases": {
-      "description": "Tests cover happy path but miss error handling and boundary conditions",
+      "description": "Testes cobrem so o caminho feliz e nao testam erros e limites",
       "default_probability": 0.4,
       "severity": "medium",
-      "prevention": "For each test, add at least one error case and one boundary case",
+      "prevention": "Pra cada teste, adicionar pelo menos um caso de erro e um caso limite",
       "guardrail": null
     },
     "flaky-tests": {
-      "description": "New tests pass locally but fail intermittently due to timing or state leakage",
+      "description": "Testes novos passam local mas falham de vez em quando por timing ou estado compartilhado",
       "default_probability": 0.3,
       "severity": "low",
-      "prevention": "Isolate test state. Avoid shared mutable state between tests. Use temp directories.",
+      "prevention": "Isolar estado dos testes. Evitar estado mutavel compartilhado. Usar diretorios temporarios.",
       "guardrail": null
     }
   },
   "goal_patterns": {
     "auth|credentials|login|senha|oauth": ["credential-mismatch", "wrong-account"],
-    "database|migration|schema|supabase|rls": ["data-loss-risk", "missing-backup"],
-    "deploy|push|release|publish": ["untested-code", "broken-ci"],
-    "refactor|rename|move|reorganize": ["scope-creep", "breaking-imports"],
-    "test|coverage|jest|vitest|spec": ["missing-edge-cases", "flaky-tests"],
-    "api|endpoint|route|fetch": ["credential-mismatch", "untested-code"],
-    "style|css|tailwind|ui|component": ["scope-creep", "missing-edge-cases"],
-    "config|env|secret|key": ["credential-mismatch", "data-loss-risk"]
+    "database|migration|schema|supabase|rls|banco": ["data-loss-risk", "missing-backup"],
+    "deploy|push|release|publish|publicar": ["untested-code", "broken-ci"],
+    "refactor|rename|move|reorganize|refatorar|mover": ["scope-creep", "breaking-imports"],
+    "test|coverage|jest|vitest|spec|teste": ["missing-edge-cases", "flaky-tests"],
+    "api|endpoint|route|fetch|rota": ["credential-mismatch", "untested-code"],
+    "style|css|tailwind|ui|component|componente": ["scope-creep", "missing-edge-cases"],
+    "config|env|secret|key|chave|segredo": ["credential-mismatch", "data-loss-risk"]
   }
 }
