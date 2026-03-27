@@ -12,6 +12,8 @@ const { values, positionals } = parseArgs({
     max: { type: 'string', default: '20' },
     domain: { type: 'string' },
     'dry-run': { type: 'boolean', default: false },
+    all: { type: 'boolean', default: false },
+    'cross-project': { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h', default: false },
   },
 });
@@ -29,6 +31,9 @@ async function main() {
   switch (command) {
     case 'init':
       await cmdInit(cwd);
+      break;
+    case 'scan':
+      await cmdScan(cwd);
       break;
     case 'run':
       await cmdRun(cwd, goal, values);
@@ -57,18 +62,24 @@ autoevolve — Autonomous improvement engine
 
 Usage:
   autoevolve init                    Generate config, auto-detect domains
+  autoevolve scan                    Discover all projects in workspace
   autoevolve run "goal"              Run improvement loop for a goal
+  autoevolve run --all "goal"        Run on all discovered projects
   autoevolve predict                 Analyze behavior patterns
   autoevolve flow                    Audit workflow (if framework detected)
   autoevolve status                  Show current state and metrics
+  autoevolve status --all            Aggregated status across all projects
   autoevolve rules                   List hardcoded rules
   autoevolve rules export            Export rules to share
+  autoevolve rules --cross-project   Promote and show global rules
 
 Options:
-  --max <n>          Max iterations (default: 20)
-  --domain <name>    Only run specific domain
-  --dry-run          Show what would change without executing
-  -h, --help         Show this help
+  --max <n>              Max iterations (default: no limit, plateau stops)
+  --domain <name>        Only run specific domain
+  --all                  Run on all discovered projects
+  --cross-project        Show/promote cross-project rules
+  --dry-run              Show what would change without executing
+  -h, --help             Show this help
 `);
 }
 
@@ -79,7 +90,29 @@ async function cmdInit(cwd) {
   console.log('Run `autoevolve run "your goal"` to start improving.');
 }
 
+async function cmdScan(cwd) {
+  const { ProjectScanner } = await import('./multi/project-scanner.js');
+  const scanner = new ProjectScanner(cwd);
+  const projects = await scanner.scanAndSave();
+  if (projects.length === 0) {
+    console.log('No projects found. Try running in a workspace with projects/ subdirectory.');
+    return;
+  }
+  console.log(`Found ${projects.length} projects:`);
+  for (const p of projects) {
+    const flags = [p.hasTests && 'tests', p.hasClaudeMd && 'claude', p.hasAiosCore && 'aiox'].filter(Boolean);
+    console.log(`  ${p.name} [${flags.join(', ')}]`);
+  }
+}
+
 async function cmdStatus(cwd) {
+  if (values.all) {
+    const { Orchestrator } = await import('./multi/orchestrator.js');
+    const orch = new Orchestrator(cwd);
+    const report = await orch.aggregateReports();
+    console.log(JSON.stringify(report, null, 2));
+    return;
+  }
   const { StateManager } = await import('./core/state.js');
   const state = new StateManager(cwd);
   const s = await state.load();
@@ -114,6 +147,27 @@ async function cmdFlow(cwd) {
 }
 
 async function cmdRules(cwd, subcommand) {
+  if (values['cross-project']) {
+    const { RulePromoter } = await import('./multi/rule-promoter.js');
+    const { readFile } = await import('node:fs/promises');
+    const { join } = await import('node:path');
+    const promoter = new RulePromoter(cwd);
+    const promoted = await promoter.promote();
+    if (promoted.length > 0) {
+      console.log(`Promoted ${promoted.length} new global rules.`);
+    }
+    try {
+      const global = JSON.parse(await readFile(join(cwd, '.autoevolve', 'global-rules.json'), 'utf8'));
+      console.log(`${global.length} global rules:`);
+      for (const r of global) {
+        console.log(`  ${r.id} [${r.domain}] ${r.do} (from: ${r.found_in.join(', ')})`);
+      }
+    } catch {
+      console.log('No global rules yet. Rules are promoted when the same pattern appears in 2+ projects.');
+    }
+    return;
+  }
+
   const store = new RuleStore(cwd);
   const rules = await store.loadAll();
 

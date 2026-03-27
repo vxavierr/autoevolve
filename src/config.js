@@ -20,6 +20,17 @@ const DEFAULTS = {
     extract_after_repeats: 3,
     require_verified_count: 3,
   },
+  cost: {
+    models: {
+      sonnet: { input_per_1k: 0.003, output_per_1k: 0.015 },
+      haiku: { input_per_1k: 0.00025, output_per_1k: 0.00125 },
+      opus: { input_per_1k: 0.015, output_per_1k: 0.075 },
+    },
+  },
+  multi: {
+    auto_discover: true,
+    projects_dir: 'projects',
+  },
 };
 
 export async function loadConfig(baseDir) {

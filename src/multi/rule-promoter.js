@@ -67,7 +67,8 @@ export class RulePromoter {
   async #loadProjectRules(projectPath) {
     try {
       const raw = await readFile(join(projectPath, '.autoevolve', 'rules', 'hardcoded-rules.json'), 'utf8');
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
       return [];
     }

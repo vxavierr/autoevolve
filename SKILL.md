@@ -44,6 +44,10 @@ The user invokes you as:
 - `/autoevolve --max 10 "goal"` → optional: limit iterations (default: no limit, plateau stops)
 - `/autoevolve --domain code "goal"` → only code domain
 - `/autoevolve --dry-run "goal"` → show plan without executing
+- `/autoevolve scan` → discover all projects in workspace
+- `/autoevolve status --all` → aggregated status across all projects
+- `/autoevolve run --all "goal"` → run tight loop on each project sequentially
+- `/autoevolve rules --cross-project` → promote and show global rules
 
 ### Domain: code
 
