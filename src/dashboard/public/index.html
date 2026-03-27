@@ -1,0 +1,48 @@
+<!-- src/dashboard/public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>autoevolve dashboard</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <h1>autoevolve</h1>
+    <button id="refresh-btn" title="Refresh">&#8635;</button>
+    <span id="last-updated"></span>
+  </header>
+
+  <main>
+    <div class="panels">
+      <section id="panel-projects" class="panel">
+        <h2>Projects</h2>
+        <div class="panel-content" id="projects-content">Loading...</div>
+      </section>
+
+      <section id="panel-evolution" class="panel">
+        <h2>Evolution</h2>
+        <div class="panel-content" id="evolution-content">Loading...</div>
+      </section>
+
+      <section id="panel-behavior" class="panel">
+        <h2>Behavior</h2>
+        <div class="panel-content" id="behavior-content">Loading...</div>
+      </section>
+
+      <section id="panel-predictions" class="panel">
+        <h2>Predictions</h2>
+        <div class="panel-content" id="predictions-content">Loading...</div>
+      </section>
+    </div>
+
+    <section id="panel-runs" class="panel panel-wide">
+      <h2>Recent Runs</h2>
+      <div class="panel-content" id="runs-content">Loading...</div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
