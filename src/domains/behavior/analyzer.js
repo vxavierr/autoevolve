@@ -1,14 +1,21 @@
 // src/domains/behavior/analyzer.js
+// Signals that indicate user is correcting Claude's approach
+// Tuned to avoid false positives from system messages (task-notification, etc.)
 const CORRECTION_SIGNALS = [
   /\bno[, ]+not\b/i,
   /\bnot that\b/i,
   /\bI meant\b/i,
   /\bwrong\b/i,
-  /\bstop\b/i,
-  /\bdon'?t\b/i,
+  /\bstop doing\b/i,
+  /\bdon'?t do\b/i,
   /\bundo\b/i,
   /\brevert\b/i,
-  /\bactually[, ]/i,
+  /\bactually[, ]I\b/i,
+  /\bnão era isso\b/i,    // pt-br
+  /\bnão[, ]+não\b/i,     // pt-br
+  /\bpara com isso\b/i,   // pt-br
+  /\berrado\b/i,           // pt-br
+  /\bmuda isso\b/i,        // pt-br
 ];
 
 const APPROVAL_SIGNALS = [
@@ -34,6 +41,11 @@ export class BehaviorAnalyzer {
       const prev = events[i - 1];
       if (curr.type !== 'user' || prev.type !== 'assistant') continue;
 
+      // Skip system/task notifications (not real user input)
+      if (curr.content.includes('<task-notification>') || curr.content.includes('<command-name>')) continue;
+      // Skip very long messages (likely agent prompts, not corrections)
+      if (curr.content.length > 500) continue;
+
       for (const regex of CORRECTION_SIGNALS) {
         if (regex.test(curr.content)) {
           patterns.push({
@@ -57,14 +69,22 @@ export class BehaviorAnalyzer {
       const prev = events[i - 1];
       if (curr.type !== 'user' || prev.type !== 'assistant') continue;
 
+      // Skip system messages
+      if (curr.content.includes('<task-notification>') || curr.content.includes('<command-name>')) continue;
+
       // Short user message after long assistant output
+      // BUT exclude approval signals (those are positive, not frustration)
       if (prev.content.length > 300 && curr.content.length < 20) {
-        patterns.push({
-          type: 'frustration',
-          userMessage: curr.content,
-          assistantOutputLength: prev.content.length,
-          timestamp: curr.timestamp,
-        });
+        const isApproval = APPROVAL_SIGNALS.some(r => r.test(curr.content));
+        const isChoice = /^\d+$/.test(curr.content.trim()); // "1", "2", "3" = choosing option
+        if (!isApproval && !isChoice) {
+          patterns.push({
+            type: 'frustration',
+            userMessage: curr.content,
+            assistantOutputLength: prev.content.length,
+            timestamp: curr.timestamp,
+          });
+        }
       }
     }
     return patterns;
