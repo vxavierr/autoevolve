@@ -15,6 +15,10 @@ const { values, positionals } = parseArgs({
     all: { type: 'boolean', default: false },
     'cross-project': { type: 'boolean', default: false },
     simulate: { type: 'string' },
+    port: { type: 'string', default: '4040' },
+    file: { type: 'string' },
+    trust: { type: 'boolean', default: false },
+    global: { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h', default: false },
   },
 });
@@ -48,6 +52,9 @@ async function main() {
     case 'flow':
       await cmdFlow(cwd);
       break;
+    case 'dashboard':
+      await cmdDashboard(cwd);
+      break;
     case 'rules':
       await cmdRules(cwd, positionals[1]);
       break;
@@ -72,8 +79,13 @@ Usage:
   autoevolve status                  Show current state and metrics
   autoevolve status --all            Aggregated status across all projects
   autoevolve rules                   List hardcoded rules
-  autoevolve rules export            Export rules to share
+  autoevolve rules export            Export rules to stdout
+  autoevolve rules export --file f   Export rules to file
+  autoevolve rules export --global   Export cross-project rules only
+  autoevolve rules import <file>     Import rules from file
+  autoevolve rules import --trust <url>  Import from URL
   autoevolve rules --cross-project   Promote and show global rules
+  autoevolve dashboard               Open web dashboard (localhost:4040)
 
 Options:
   --max <n>              Max iterations (default: no limit, plateau stops)
@@ -81,6 +93,10 @@ Options:
   --all                  Run on all discovered projects
   --cross-project        Show/promote cross-project rules
   --simulate "goal"      Predict friction scenarios for a goal
+  --port <n>             Dashboard port (default: 4040)
+  --file <path>          Export rules to file
+  --global               Export global rules only
+  --trust                Allow importing from remote URLs
   --dry-run              Show what would change without executing
   -h, --help             Show this help
 `);
@@ -198,7 +214,33 @@ async function cmdRules(cwd, subcommand) {
   const rules = await store.loadAll();
 
   if (subcommand === 'export') {
-    console.log(JSON.stringify(rules, null, 2));
+    const { RuleExporter } = await import('./marketplace/exporter.js');
+    const exporter = new RuleExporter(cwd);
+    const pkg = values.global ? await exporter.exportGlobal() : await exporter.exportLocal();
+    if (values.file) {
+      await exporter.exportToFile(values.file, values.global);
+      console.log(`Exported ${pkg.rules.length} rules to ${values.file}`);
+    } else {
+      console.log(JSON.stringify(pkg, null, 2));
+    }
+    return;
+  }
+
+  if (subcommand === 'import') {
+    const source = positionals[2];
+    if (!source) { console.log('Usage: autoevolve rules import <file|url>'); return; }
+    const { RuleImporter } = await import('./marketplace/importer.js');
+    const importer = new RuleImporter(cwd);
+    const isUrl = source.startsWith('http');
+    if (isUrl && !values.trust) {
+      console.log('Remote import requires --trust flag: autoevolve rules import --trust <url>');
+      return;
+    }
+    const result = isUrl ? await importer.importFromUrl(source) : await importer.importFromFile(source);
+    console.log(`Imported: ${result.imported}, Rejected: ${result.rejected}${result.truncated ? ' (truncated to 50)' : ''}`);
+    if (result.errors?.length) {
+      for (const e of result.errors) console.log(`  x ${e}`);
+    }
     return;
   }
 
@@ -211,6 +253,16 @@ async function cmdRules(cwd, subcommand) {
   for (const rule of rules) {
     console.log(`  ${rule.id} [${rule.domain}] ${rule.when} → ${rule.do} (used ${rule.verified_count}x)`);
   }
+}
+
+async function cmdDashboard(cwd) {
+  const { createDashboardServer } = await import('./dashboard/server.js');
+  const port = parseInt(values.port, 10) || 4040;
+  const server = createDashboardServer(cwd);
+  server.listen(port, '127.0.0.1', () => {
+    console.log(`autoevolve dashboard running at http://127.0.0.1:${port}`);
+    console.log('Press Ctrl+C to stop.');
+  });
 }
 
 main().catch(err => {

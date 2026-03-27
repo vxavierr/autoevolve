@@ -49,6 +49,11 @@ The user invokes you as:
 - `/autoevolve run --all "goal"` → run tight loop on each project sequentially
 - `/autoevolve rules --cross-project` → promote and show global rules
 - `/autoevolve predict --simulate "goal"` → predict friction scenarios before starting
+- `/autoevolve dashboard` → open web dashboard at localhost:4040
+- `/autoevolve rules export --file rules.json` → export rules to file
+- `/autoevolve rules export --global` → export cross-project rules only
+- `/autoevolve rules import rules.json` → import rules from local file
+- `/autoevolve rules import --trust <url>` → import rules from remote URL
 
 ### Prediction (`/autoevolve predict --simulate "goal"`)
 
