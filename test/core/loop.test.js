@@ -89,4 +89,16 @@ describe('Loop', () => {
     assert.equal(report.stop_reason, 'plateau');
     assert.ok(report.iterations <= 4); // 3 plateau + possible 1 initial
   });
+
+  it('persists state with report after loop completes', async () => {
+    const { StateManager } = await import('../../src/core/state.js');
+    const state = new StateManager(dir);
+    const s = await state.load();
+    assert.equal(s.status, 'completed');
+    assert.ok(s.report);
+    assert.ok(s.report.goal);
+    assert.ok(typeof s.report.iterations === 'number');
+    assert.ok(typeof s.report.kept === 'number');
+    assert.ok(typeof s.report.reverted === 'number');
+  });
 });
