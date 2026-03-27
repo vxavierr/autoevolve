@@ -1,0 +1,34 @@
+# config/autoevolve.config.example.yaml
+# Copy to .autoevolve/config.yaml in your project root
+
+domains:
+  code:
+    enabled: true
+    metrics: [coverage, lint-errors]
+    verify_command: "npm test -- --coverage"
+    scope: "src/**/*.{js,ts}"
+  prompts:
+    enabled: true
+    metrics: [token-usage, instruction-density]
+    scope: ".claude/**/*.md"
+  behavior:
+    enabled: true
+    log_source: null  # auto-detect from ~/.claude/projects/
+  flow:
+    enabled: auto  # auto-detect framework (e.g., AIOX)
+
+loop:
+  max_iterations: 20
+  strategy: "one-change-at-a-time"
+  auto_revert: true
+  plateau_threshold: 3
+
+evolution:
+  extract_after_repeats: 3
+  require_verified_count: 3
+
+# Only needed when running standalone (outside Claude Code)
+# llm:
+#   provider: "anthropic"
+#   model: "claude-sonnet-4-6"
+#   api_key_env: "ANTHROPIC_API_KEY"
