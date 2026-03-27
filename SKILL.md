@@ -23,7 +23,7 @@ improve codebases, prompts, and developer workflows.
 4. **COMMIT** — `git commit` before verification (snapshot)
 5. **VERIFY** — run verify command again, capture new metric
 6. **DECIDE** — improved? KEEP. Worsened? `git revert`. Unchanged? KEEP + plateau flag.
-7. **REPEAT** — until plateau (3x no improvement) or max iterations
+7. **REPEAT** — until plateau (3 consecutive no-improvement iterations). No artificial max — trust plateau detection.
 
 ### Rules (non-negotiable)
 
@@ -41,7 +41,7 @@ The user invokes you as:
 - `/autoevolve flow` → run workflow audit
 - `/autoevolve --auto` → run all domains
 - `/autoevolve status` → show state and metrics
-- `/autoevolve --max 10 "goal"` → limit iterations
+- `/autoevolve --max 10 "goal"` → optional: limit iterations (default: no limit, plateau stops)
 - `/autoevolve --domain code "goal"` → only code domain
 - `/autoevolve --dry-run "goal"` → show plan without executing
 
