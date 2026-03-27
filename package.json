@@ -1,0 +1,23 @@
+{
+  "name": "autoevolve",
+  "version": "0.1.0",
+  "description": "Autonomous improvement engine for code, prompts, and workflows. Tight loop: measure, change, verify, keep or revert.",
+  "type": "module",
+  "main": "src/cli.js",
+  "bin": {
+    "autoevolve": "src/cli.js"
+  },
+  "scripts": {
+    "test": "node --test test/**/*.test.js",
+    "test:watch": "node --test --watch test/**/*.test.js"
+  },
+  "keywords": ["ai", "automation", "self-improvement", "claude-code", "autoresearch"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

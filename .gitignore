@@ -1,0 +1,4 @@
+node_modules/
+.autoevolve/
+*.log
+.DS_Store
