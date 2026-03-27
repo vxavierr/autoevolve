@@ -18,12 +18,14 @@ improve codebases, prompts, and developer workflows.
 ### Core Loop (for goals like "improve test coverage")
 
 1. **MEASURE** — run the verify command, capture baseline metric
-2. **ANALYZE** — read metric + git log + goal + hardcoded rules. Decide 1 change.
-3. **CHANGE** — apply exactly 1 atomic modification
-4. **COMMIT** — `git commit` before verification (snapshot)
-5. **VERIFY** — run verify command again, capture new metric
-6. **DECIDE** — improved? KEEP. Worsened? `git revert`. Unchanged? KEEP + plateau flag.
-7. **REPEAT** — until plateau (3 consecutive no-improvement iterations). No artificial max — trust plateau detection.
+2. **BRANCH** — create `autoevolve/cycle-{date}` branch (isolate changes)
+3. **ANALYZE** — read metric + git log + goal + hardcoded rules + negative rules. Decide 1 change.
+4. **CHANGE** — apply exactly 1 atomic modification
+5. **COMMIT** — `git commit` before verification (snapshot)
+6. **VERIFY** — run verify command again, capture new metric
+7. **DECIDE** — improved? KEEP. Worsened? `git revert`. Unchanged? KEEP + plateau flag.
+8. **REPEAT** — until plateau (3 consecutive no-improvement iterations).
+9. **PR** — push branch, open PR with summary. If nothing improved, delete branch.
 
 ### Rules (non-negotiable)
 
@@ -54,6 +56,7 @@ The user invokes you as:
 - `/autoevolve rules export --global` → export cross-project rules only
 - `/autoevolve rules import rules.json` → import rules from local file
 - `/autoevolve rules import --trust <url>` → import rules from remote URL
+- `/autoevolve learn-rejections` → scan closed PRs and extract negative rules
 
 ### Prediction (`/autoevolve predict --simulate "goal"`)
 
@@ -64,6 +67,20 @@ The user invokes you as:
 5. Show scenarios sorted by probability, with severity icons
 6. Recommend guardrails for high-risk scenarios (propose hooks if pattern warrants)
 7. If no templates match and you're running as a skill, generate scenarios using your own reasoning based on the goal + behavior model
+
+### PR Review Flow
+
+autoevolve never commits directly to main/master. Every cycle:
+1. Creates an isolated branch `autoevolve/cycle-{timestamp}`
+2. Runs the tight loop (measure → change → verify → decide) on that branch
+3. If improvements were kept: pushes and opens a PR with full summary
+4. User reviews the PR — approve to merge, close to reject
+5. On next run: scans closed PRs for rejection feedback, extracts lessons
+6. Rejected patterns are stored in `.autoevolve/rules/negative-rules.json`
+7. Future cycles check negative rules BEFORE proposing changes
+
+Commands:
+- `/autoevolve learn-rejections` → manually scan closed PRs and learn from rejections
 
 ### Hook auto-generation
 

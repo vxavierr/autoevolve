@@ -31,6 +31,12 @@ const DEFAULTS = {
     auto_discover: true,
     projects_dir: 'projects',
   },
+  git: {
+    create_branch: true,
+    create_pr: true,
+    base_branch: 'master',
+    remote: 'origin',
+  },
 };
 
 export async function loadConfig(baseDir) {

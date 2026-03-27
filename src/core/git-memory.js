@@ -51,4 +51,36 @@ export class GitMemory {
       return '';
     }
   }
+
+  async getCurrentBranch() {
+    return this.#git('rev-parse', '--abbrev-ref', 'HEAD');
+  }
+
+  async createBranch(name) {
+    await this.#git('checkout', '-b', name);
+    return name;
+  }
+
+  async checkout(branch) {
+    await this.#git('checkout', branch);
+  }
+
+  async pushBranch(remote = 'origin') {
+    const branch = await this.getCurrentBranch();
+    await this.#git('push', '-u', remote, branch);
+  }
+
+  async createPR(title, body, baseBranch = 'master') {
+    const { stdout } = await exec('gh', ['pr', 'create', '--title', title, '--body', body, '--base', baseBranch], { cwd: this.#cwd });
+    return stdout.trim(); // returns PR URL
+  }
+
+  async deleteBranch(name) {
+    await this.#git('branch', '-D', name);
+  }
+
+  async hasCommitsSince(baseBranch) {
+    const log = await this.#git('log', `${baseBranch}..HEAD`, '--oneline');
+    return log.length > 0;
+  }
 }

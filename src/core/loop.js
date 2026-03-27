@@ -17,11 +17,12 @@ export class Loop {
       metricRegex: opts.metricRegex,
       metricDirection: opts.metricDirection ?? 'higher-is-better',
       changeFn: opts.changeFn, // async ({ cwd, goal, history, metric }) => description
+      gitConfig: opts.gitConfig ?? { create_branch: false, create_pr: false, base_branch: 'master', remote: 'origin' },
     };
   }
 
   async run() {
-    const { cwd, goal, maxIterations, plateauThreshold, verifyCommand, metricRegex, metricDirection, changeFn } = this.#opts;
+    const { cwd, goal, maxIterations, plateauThreshold, verifyCommand, metricRegex, metricDirection, changeFn, gitConfig } = this.#opts;
 
     const state = new StateManager(cwd);
     const git = new GitMemory(cwd);
@@ -38,6 +39,18 @@ export class Loop {
       baseline: { value: baselineValue, timestamp: startedAt },
       started_at: startedAt,
     });
+
+    // BRANCH — create isolated branch before the loop
+    let originalBranch = null;
+    let branchName = null;
+    if (gitConfig.create_branch) {
+      originalBranch = await git.getCurrentBranch();
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const stamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+      branchName = `autoevolve/cycle-${stamp}`;
+      await git.createBranch(branchName);
+    }
 
     let currentMetric = baselineValue;
     let plateauCount = 0;
@@ -126,6 +139,30 @@ export class Loop {
       stop_reason: stopReason,
       duration_seconds: Math.round((Date.now() - new Date(loadedState.started_at).getTime()) / 1000),
     };
+
+    // POST-LOOP: push branch and open PR if improvements were kept
+    if (gitConfig.create_branch && branchName) {
+      if (kept > 0 && gitConfig.create_pr) {
+        await git.pushBranch(gitConfig.remote);
+        const prBody = [
+          `**Goal:** ${goal}`,
+          `**Baseline:** ${baselineValue}`,
+          `**Final metric:** ${currentMetric}`,
+          `**Improvement:** ${currentMetric - baselineValue}`,
+          `**Iterations:** ${iterations}`,
+          `**Kept:** ${kept}`,
+          `**Reverted:** ${reverted}`,
+          `**Stop reason:** ${stopReason}`,
+        ].join('\n');
+        const prUrl = await git.createPR(`[autoevolve] ${goal}`, prBody, gitConfig.base_branch);
+        report.branch_name = branchName;
+        report.pr_url = prUrl;
+      } else if (kept === 0) {
+        // Nothing improved — go back to original branch and delete autoevolve branch
+        await git.checkout(originalBranch);
+        await git.deleteBranch(branchName);
+      }
+    }
 
     await state.update({ status: 'completed', report });
     return report;
