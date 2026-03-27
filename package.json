@@ -9,7 +9,11 @@
   },
   "scripts": {
     "test": "node --test test/**/*.test.js",
-    "test:watch": "node --test --watch test/**/*.test.js"
+    "test:watch": "node --test --watch test/**/*.test.js",
+    "runner": "node src/runner.js",
+    "runner:install": "node src/runner.js --install",
+    "runner:uninstall": "node src/runner.js --uninstall",
+    "runner:status": "node src/runner.js --status"
   },
   "keywords": ["ai", "automation", "self-improvement", "claude-code", "autoresearch"],
   "author": "",
