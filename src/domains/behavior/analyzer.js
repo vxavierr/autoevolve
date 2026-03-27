@@ -44,9 +44,21 @@ const APPROVAL_SIGNALS = [
 const COMMAND_SIGNALS = [
   /^@\w+/,           // @dev, @devops, @qa
   /^\*\w+/,          // *push, *status
+  /^\/\w+/,          // /clear, /autoevolve, /commit
   /^clear$/i,
   /^eai$/i,          // pt-br "hey" (session start)
+  /^pronto$/i,       // pt-br "done" / "ready" (terse directive)
+  /^certo$/i,        // pt-br "right" (acknowledgement)
+  /^qual\??$/i,      // pt-br "which?" (terse question)
+  /^outro$/i,        // pt-br "another" (terse directive)
+  /^está$/i,         // pt-br "it is" (confirmation)
+  /^OPA$/i,          // pt-br greeting
 ];
+
+// Terse directive patterns — short imperative messages that are
+// the user's natural communication style, not signs of frustration.
+// These are commands/instructions, not emotional reactions.
+const TERSE_DIRECTIVE = /^(me d[aá]|cria|faz|roda|testa|tira|coloca|muda|abre|fecha|mostra|gera)\b/i;
 
 export class BehaviorAnalyzer {
   detectCorrections(events) {
@@ -93,7 +105,8 @@ export class BehaviorAnalyzer {
         const isApproval = APPROVAL_SIGNALS.some(r => r.test(curr.content));
         const isChoice = /^\d+$/.test(curr.content.trim()); // "1", "2", "3" = choosing option
         const isCommand = COMMAND_SIGNALS.some(r => r.test(curr.content.trim()));
-        if (!isApproval && !isChoice && !isCommand) {
+        const isDirective = TERSE_DIRECTIVE.test(curr.content.trim());
+        if (!isApproval && !isChoice && !isCommand && !isDirective) {
           patterns.push({
             type: 'frustration',
             userMessage: curr.content,
